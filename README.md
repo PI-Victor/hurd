@@ -5,7 +5,7 @@ versions under a single platform.
 
 
 #### Installing and deps
-This project depends on python 3.7.2, install
+This project depends on python 3.7, install
 [python virtualenv](https://virtualenv.pypa.io/en/latest/).  
 
 Prerequisites:
