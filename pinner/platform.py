@@ -1,21 +1,13 @@
 from . import util
 
-class VersionStack:
-    def __init__(self):
-        pass
-
-    def search_version(self):
-        pass
-
-    def _walk_dir_tree(self):
-        pass
 
 class Platform:
-    """Platform holds the general information about the platform config"""
+    """Platform holds the general metadata and functionality about the platform
+    config"""
 
-    def __init__(self, version):
+    def __init__(self, version, workspace):
         self.version = version
-        self.config_path = '{}/{}'.format(util.get_working_dir(), "config.yaml")
+        self.config_path = os.path.join(workspace, 'config.yaml')
 
     def load_microservices():
         pass
@@ -31,6 +23,7 @@ class Platform:
 
         except yaml.YAMLError as e:
             raise e
+
 
 class MicroService:
     """MicroService holds the microservice config and relevant functionality"""
