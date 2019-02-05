@@ -30,8 +30,8 @@ $: python3.7 setup.py install
 ##### Usage
 
 The tool has three options: `describe`, `fetch` and `validate`. The `--version`
-and the `--workspace' (or exporting PINNER_WORKSPACE) parameters are mandatory
-for commands.  
+and the `--workspace` (alternately exporting PINNER_WORKSPACE) parameters are
+mandatory for commands.  
 
 You can find out the parameters needed and the description for each command by
 passing `--help` at the end.

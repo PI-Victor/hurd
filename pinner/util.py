@@ -2,6 +2,12 @@ import os, re
 from fnmatch import filter as fnfilter
 
 
+class NoVersionFoundError(Exception):
+    """This exception is thrown whenever there is no directory found for a
+    specific version in the specified workspace.
+    """
+    pass
+
 def open_file(config_file):
     try:
         with open(config_file) as cf:
@@ -20,13 +26,13 @@ def get_platform_versions(workspace_path, version=''):
     e.g.: v1, v2, v2.2 return:
     :param workspace_path: string
     :param version: string
-    :return: returns a list of strings that contains the full path that match
-    the regex.
+    :return: a list of all yaml files present in the specified version directory
     """
     _regex = re.compile(version)
-    version_dir = list(
-        filter(lambda s: _regex.match(s), os.listdir(workspace_path))
-    )
-    # NOTE: any way to ditch [0]?
-    version_path = os.path.join(workspace_path, version_dir[0])
+    
+    version_dir = next((path for path in os.listdir(workspace_path) if _regex.match(path)), None)
+    if version_dir is None:
+        raise NoVersionFoundError(f'No version directory for version: {version} was found in {workspace_path}')
+
+    version_path = os.path.join(workspace_path, version_dir)
     return fnfilter(os.listdir(version_path), '*.yaml')

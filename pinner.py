@@ -70,7 +70,7 @@ def fetch(version, workspace):
 )
 @add_option(_global_options)
 def describe(version, workspace):
-    major_versions = get_platform_versions(workspace, version)
+    yaml_files = get_platform_versions(workspace, version)
 
 @cli.command(
     help="""
