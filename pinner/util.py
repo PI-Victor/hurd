@@ -20,19 +20,26 @@ def open_file(config_file):
     except IOError as ioError:
         raise ioError
 
-def get_platform_versions(workspace_path, version=''):
+def get_config_paths(workspace_path, version=''):
     """Walks the specified directory where the platform versioning is located
     and will try to find all the directories that match a regex of v[0-9]+.
-    e.g.: v1, v2, v2.2 return:
-    :param workspace_path: string
-    :param version: string
-    :return: a list of all yaml files present in the specified version directory
+    e.g.: v1, v2, v2 return:
+    :param workspace_path: string path to the workspace where the configuration
+    is located.
+    :param version: string the specific version to search for.
+    :return: a list of all yaml files present in the specified version directory.
     """
-    _regex = re.compile(version)
-    
-    version_dir = next((path for path in os.listdir(workspace_path) if _regex.match(path)), None)
+    _regex_version = re.compile("v[0-9]+")
+
+    version_dir = next((path for path in os.listdir(workspace_path) if _regex_version.match(path)), None)
+
     if version_dir is None:
         raise NoVersionFoundError(f'No version directory for version: {version} was found in {workspace_path}')
 
     version_path = os.path.join(workspace_path, version_dir)
-    return fnfilter(os.listdir(version_path), '*.yaml')
+    versions = list(filter(lambda p: re.search(version, p), os.listdir(version_path)))
+
+    if not versions:
+        raise NoVersionFoundError(f'No version {version} has been defined in path {version_path}')
+
+    return list(map(lambda p: os.path.join(version_path, p), versions))

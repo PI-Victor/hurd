@@ -1,6 +1,6 @@
 import click
 
-from pinner.util import get_platform_versions
+from pinner.util import get_config_paths
 
 
 def validate_version(ctx, param, value):
@@ -70,7 +70,8 @@ def fetch(version, workspace):
 )
 @add_option(_global_options)
 def describe(version, workspace):
-    yaml_files = get_platform_versions(workspace, version)
+    yaml_files = get_config_paths(workspace, version)
+    print(yaml_files)
 
 @cli.command(
     help="""
