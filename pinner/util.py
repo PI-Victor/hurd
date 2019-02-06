@@ -29,8 +29,7 @@ def get_config_paths(workspace_path, version=''):
     :param version: string the specific version to search for.
     :return: a list of all yaml files present in the specified version directory.
     """
-    match_version = next(version for version in version.split("."))
-    _regex_version = re.compile(match_version)
+    _regex_version = re.compile(version.split(".")[0])
 
     version_dir = next((path for path in os.listdir(workspace_path) if _regex_version.match(path)), None)
 
