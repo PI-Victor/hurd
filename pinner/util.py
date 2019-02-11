@@ -1,45 +1,67 @@
-import os, re
+import re, copy
+from os import path, listdir
 from fnmatch import filter as fnfilter
 
+import yaml
+from .platform import Platform, MicroService
+from .errors import NoVersionFoundError
 
-class NoVersionFoundError(Exception):
-    """This exception is thrown whenever there is no directory found for a
-    specific version in the specified workspace.
-    """
-    pass
 
 def open_file(config_file):
-    try:
-        with open(config_file) as cf:
-            return cf.read()
+    """Opens a file and sends its contents to be consumer by the yaml library.
+    :param config_file: string full path to the config file of the platform.
+    :return: a generator object that contains the YAML spec of the file.
+    """
+    with open(config_file) as config:
+        return yaml.safe_load_all(config.read())
 
-    except OsError as osError:
-        # NOTE: wrap it!?
-        raise osError
-
-    except IOError as ioError:
-        raise ioError
-
-def get_config_paths(workspace_path, version=''):
+def get_versions_paths(workspace_path, version=''):
     """Walks the specified directory where the platform versioning is located
     and will try to find all the directories that match a regex of v[0-9]+.
-    e.g.: v1, v2, v2 return:
+    e.g.: v1, v2, v3.
     :param workspace_path: string path to the workspace where the configuration
     is located.
     :param version: string the specific version to search for.
     :return: a list of all yaml files present in the specified version directory.
     """
-    _regex_version = re.compile(version.split(".")[0])
+    reg_vers = re.compile(version.split('.')[0])
 
-    version_dir = next((path for path in os.listdir(workspace_path) if _regex_version.match(path)), None)
+    vers_dir = next((path for path in listdir(workspace_path) if reg_vers.match(path)), None)
 
-    if version_dir is None:
+    if vers_dir is None:
         raise NoVersionFoundError(f'No version directory for version: {version} was found in {workspace_path}')
 
-    version_path = os.path.join(workspace_path, version_dir)
-    versions = list(filter(lambda p: re.search(version, p), os.listdir(version_path)))
+    vers_path = path.join(workspace_path, vers_dir)
+    reg_vers_match = version.split('.')
+    reg_vers_file = re.compile(f'{reg_vers_match[0]}.{reg_vers_match[1]}')
+    versions = list(filter(lambda p: re.search(reg_vers_file, p), listdir(vers_path)))
 
     if not versions:
-        raise NoVersionFoundError(f'No version {version} has been defined in path {version_path}')
+        raise NoVersionFoundError(f'No version {version} has been defined in path {vers_path}')
 
-    return list(map(lambda p: os.path.join(version_path, p), versions))
+    return list(map(lambda p: path.join(vers_path, p), versions))
+
+def filter_version(version, workspace):
+    """Creates a new list of Platform objects that contain the YAML config for
+    the desired
+    """
+    platform = Platform(workspace)
+    yaml_files = get_versions_paths(workspace, version)
+    contents = list(open_file(f) for f in yaml_files)
+
+    platforms = []
+    match_vers = re.compile(version)
+    for platform_version in [content for content in contents]:
+        for vers in [v for v in platform_version]:
+            # NOTE: this is where the filtering for the specific version can be
+            # done, after we parsed all the major version files.
+            if not (match_vers.match(vers['version'])):
+                continue
+            platform_copy = copy.deepcopy(platform)
+            platform_copy.update_components(vers)
+            platforms.append(platform_copy)
+
+    if len(list(platforms)) == 0:
+        raise NoVersionFoundError(f'Version {version} was not found in {workspace}')
+
+    return platforms

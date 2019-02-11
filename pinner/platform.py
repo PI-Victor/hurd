@@ -1,34 +1,70 @@
+from os import path
+
 from . import util
+from .errors import NoVersionFoundError, NoComponentsDefinedError, \
+    ComponentUndefinedError
 
 
 class Platform:
     """Platform holds the general metadata and functionality about the platform
-    config"""
-
-    def __init__(self, version, workspace):
+    config
+    """
+    def __init__(self, workspace, version=''):
         self.version = version
-        self.config_path = os.path.join(workspace, 'config.yaml')
+        self._components = []
 
-    def load_microservices():
-        pass
+        config_file = path.join(workspace, "config.yaml")
+        config = util.open_file(config_file)
 
-    def load_config():
-        try:
-            print(this.config_path)
-            # with open(this.config_path, encoding='utf-8') as fh.read():
-            #     yaml = yaml.safe_load(fh)
+        for component in next(data.get('components') for data in config):
+            self._components.append(
+                MicroService(
+                    alias=component.get('name'),
+                    location=component.get('url'),
+                )
+            )
 
-        except OSError as e:
-            raise e
+    def __repr__(self):
+        return self.version
 
-        except yaml.YAMLError as e:
-            raise e
+    def __eq__(self, version):
+        return self.version == version
+
+    def update_components(self, vers_config):
+        self.version = vers_config.get('version')
+
+        if self.version is None:
+            raise NoVersionFoundError('No platform version was defined in file')
+
+        components = vers_config.get('components')
+
+        if components is None:
+            raise NoComponentsDefinedError(f'No components are defined for {version}')
+
+        for component in components:
+            name = component.get('name')
+
+            if not (name in self._components):
+                raise ComponentUndefinedError(f"Component '{component['name']}' does not have a defined alias in config.yaml")
 
 
 class MicroService:
     """MicroService holds the microservice config and relevant functionality"""
 
-    def __init__(self, alias, location, refs):
+    def __init__(self, alias, location, tags='', refs=''):
         self.alias = alias
         self.location = location
-        self.refs = refs
+        self.tag = ''
+        self.refs = ''
+
+    def __repr__(self):
+        return f'{self.alias}:{self.refs}:{self.tag}'
+
+    def __eq__(self, alias):
+        return self.alias == alias
+
+    def _clone(self):
+        pass
+
+    def _export_environment(self):
+        pass
