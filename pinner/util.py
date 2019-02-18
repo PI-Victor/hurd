@@ -3,6 +3,7 @@ from os import path, listdir
 from fnmatch import filter as fnfilter
 
 import yaml
+from tabulate import tabulate
 
 from .platform import Platform, MicroService
 from . import errors
@@ -38,7 +39,7 @@ def get_versions_paths(workspace_path, version=''):
     try:
       reg_vers_file = re.compile(f'{reg_vers_match[0]}.{reg_vers_match[1]}')
     except IndexError:
-      raise errors.SemverNonCompliantError(f'Semver non-compliant: The requested version ({version}) needs a minor version')
+      raise errors.SemverNonCompliantError(f'Semver non-compliant: The requested version ({version}) needs at least a minor version')
 
     versions = list(filter(lambda p: re.search(reg_vers_file, p), listdir(vers_path)))
 
@@ -50,7 +51,9 @@ def get_versions_paths(workspace_path, version=''):
 
 def filter_version(version, workspace):
     """Creates a new list of Platform objects that contain the YAML config for
-    the desired.
+    the desired 
+    :param version: string the version to search for
+    :param workspace: string full path to the workspace.
     """
     platform = Platform(workspace)
     yaml_files = get_versions_paths(workspace, version)
@@ -73,3 +76,10 @@ def filter_version(version, workspace):
             f'Version {version} was not found in {workspace}')
 
     return platforms
+
+def tabulate_data(data, headers):
+  _table_type = 'fancy_grid'
+  print(tabulate(data, headers, tablefmt=_table_type))
+
+def logging():
+  pass

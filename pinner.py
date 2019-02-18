@@ -2,7 +2,6 @@ import click
 
 from pinner import util
 from pinner.platform import Platform
-from pinner.errors import NoVersionFoundError
 
 def validate_version(ctx, param, value):
     """Custom validation for --version option"""
@@ -72,10 +71,20 @@ def fetch(version, workspace):
 )
 @add_option(_global_options)
 def describe(version, workspace):
+    _table_headers = [
+        'Platform version',
+        'Alias',
+        'URL',
+        'Refs',
+        'Hash',
+    ]
+
     platforms = util.filter_version(version, workspace)
+    vers = []
     for version in [c for c in platforms]:
         for v in version._components:
-            print(f'{version}:{v.hash}:{v.alias}:{v.location}')
+            vers.append([version, v.alias, v.location, v.refs, v.hash])
+    util.tabulate_data(vers, _table_headers)
 
 @cli.command(
     help="""This command will validate the defined platform pinned version by

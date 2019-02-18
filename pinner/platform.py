@@ -51,13 +51,11 @@ class Platform:
         vers_components = vers_config.get('components')
 
         if not vers_components:
-            raise errors.NoComponentsDefinedError(f'No components are defined for {version}')
+            raise errors.NoComponentsDefinedError(f'No components are defined for {self.version}')
 
         for component in self._components:
             match = next((c for c in vers_components if c.get('name') == component), None)
-            # NOTE: incorrect. we are iterating over the self._components here.
-            # so it should state that the component in config.yaml does not have
-            # a corresponding value defined in the version config.
+
             if not match:
                 raise errors.ComponentUndefinedError(f"Component '{component['name']}' does not have a defined alias in config.yaml")
 
