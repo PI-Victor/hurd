@@ -14,12 +14,15 @@ def validate_workspace(ctx, param, value):
     """Custom validation for --workspace option"""
     if param.name == 'workspace' and not value:
         if not ('PINNER_WORKSPACE' in os.environ) or os.environ.get('PINNER_WORKSPACE') == '':
-            raise click.UsageError("""missing --workspace or export
+            raise click.UsageError("""pass --workspace or export
             PINNER_WORKSPACE pointing to the full path directory where the
-            config and platform versioning are located.
+            YAML platform version is located.
             """
             )
     return value
+
+def validate_path(ctx, param, value):
+    pass
 
 _global_options = [
     click.option(
@@ -70,8 +73,9 @@ def fetch(version, workspace):
 @add_option(_global_options)
 def describe(version, workspace):
     platforms = util.filter_version(version, workspace)
-    #for platform in platforms:
-    #    print(platform._components)
+    for version in [c for c in platforms]:
+        for v in version._components:
+            print(f'{version}:{v.hash}:{v.alias}:{v.location}')
 
 @cli.command(
     help="""This command will validate the defined platform pinned version by
@@ -91,6 +95,14 @@ def validate(version, workspace):
     """
 )
 @add_option(_global_options)
+@click.option(
+    '--path',
+    help="""Full path to where the artifacts should be cloned.
+    """,
+    type=click.Path(),
+    callback=validate_path,
+    envvar='PINNER_ARTIFACTS',
+)
 def tag(version, workspace):
     pass
 

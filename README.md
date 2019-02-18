@@ -1,7 +1,6 @@
 Pinner
 ---
-This tool provides an easy way to manage microservices by freezing their
-versions under a single platform.
+Unifies microservices under a single platform version.
 
 
 #### Installing and deps

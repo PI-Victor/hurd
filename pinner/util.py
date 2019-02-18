@@ -3,8 +3,9 @@ from os import path, listdir
 from fnmatch import filter as fnfilter
 
 import yaml
+
 from .platform import Platform, MicroService
-from .errors import NoVersionFoundError
+from . import errors
 
 
 def open_file(config_file):
@@ -28,22 +29,28 @@ def get_versions_paths(workspace_path, version=''):
 
     vers_dir = next((path for path in listdir(workspace_path) if reg_vers.match(path)), None)
 
-    if vers_dir is None:
-        raise NoVersionFoundError(f'No version directory for version: {version} was found in {workspace_path}')
+    if not vers_dir:
+        raise errors.NoVersionFoundError(f'No version directory for version: {version} was found in {workspace_path}')
 
     vers_path = path.join(workspace_path, vers_dir)
     reg_vers_match = version.split('.')
-    reg_vers_file = re.compile(f'{reg_vers_match[0]}.{reg_vers_match[1]}')
+
+    try:
+      reg_vers_file = re.compile(f'{reg_vers_match[0]}.{reg_vers_match[1]}')
+    except IndexError:
+      raise errors.SemverNonCompliantError(f'Semver non-compliant: The requested version ({version}) needs a minor version')
+
     versions = list(filter(lambda p: re.search(reg_vers_file, p), listdir(vers_path)))
 
     if not versions:
-        raise NoVersionFoundError(f'No version {version} has been defined in path {vers_path}')
+        raise errors.NoVersionFoundError(
+            f'No version {version} has been defined in path {vers_path}')
 
     return list(map(lambda p: path.join(vers_path, p), versions))
 
 def filter_version(version, workspace):
     """Creates a new list of Platform objects that contain the YAML config for
-    the desired
+    the desired.
     """
     platform = Platform(workspace)
     yaml_files = get_versions_paths(workspace, version)
@@ -62,6 +69,7 @@ def filter_version(version, workspace):
             platforms.append(platform_copy)
 
     if len(list(platforms)) == 0:
-        raise NoVersionFoundError(f'Version {version} was not found in {workspace}')
+        raise errors.NoVersionFoundError(
+            f'Version {version} was not found in {workspace}')
 
     return platforms
