@@ -45,6 +45,7 @@ _ssh_options = [
     click.option(
         '--user',
         '-u',
+        default='git',
         help='User to be used for cloning the repositories.',
         envvar='PINNER_AUTH_USERNAME',
     ),
@@ -55,7 +56,7 @@ _ssh_options = [
         envvar='PINNER_AUTH_PUBLIC_KEY',
     ),
     click.option(
-        '--ssh-private-key',
+        '--ssh-priv-key',
         help='Full path to the ssh private key used to clone the repositories.',
         type=click.Path(),
         envvar='PINNER_AUTH_PRIVATE_KEY',
@@ -68,6 +69,7 @@ _ssh_options = [
         it will default to /tmp/${name-of-the-platform}/
         """,
         type=click.Path(),
+        default='/tmp',
         envvar='PINNER_ARTIFACTS',
     ),
 ]
@@ -111,17 +113,12 @@ def describe(version, workspace):
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def fetch(version, workspace, path, user, ssh_pub_key, ssh_private_key):
+def fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
     platforms = util.filter_version(version, workspace)
     if len(platforms) > 1:
         raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
 
-    platforms[0].fetch_components(
-        user, 
-        ssh_pub_key, 
-        ssh_private_key, 
-        repo_path=path,
-    )
+    platforms[0].fetch_components(path, user, ssh_pub_key, ssh_priv_key)
 
 @cli.command(
     help="""This command will validate the defined platform pinned
@@ -131,7 +128,7 @@ def fetch(version, workspace, path, user, ssh_pub_key, ssh_private_key):
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def validate(version, workspace, path, user, ssh_pub_key, ssh_private_key):
+def validate(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
     pass
 
 @cli.command(
@@ -142,7 +139,7 @@ def validate(version, workspace, path, user, ssh_pub_key, ssh_private_key):
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def tag(version, workspace, path, user, ssh_pub_key, ssh_private_key):
+def tag(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
     pass
 
 if __name__ == '__main__':

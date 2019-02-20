@@ -31,17 +31,25 @@ class ComponentUndefinedError(Exception):
     pass
 
 class ComponentTagUndefinedError(Exception):
-  """This exception is raised whenever a tag is undefined on a component
-  """
-  pass
+    """This exception is raised whenever a tag is undefined on a component
+    """
+    pass
 
 class ComponentRefsUndefinedError(Exception):
-  """This exception is raised whenever a ref is undefined on a component
-  """
-  pass
+    """This exception is raised whenever a ref is undefined on a component
+    """
+    pass
 
 class SemverNonCompliantError(Exception):
-  """This exception is raised whenever the requested version does not 
-  comply with semantic versioning.
-  """
-  pass
+    """This exception is raised whenever the requested version does not 
+    comply with semantic versioning.
+    """
+    pass
+
+
+class MultiplePlatformVersionsFound(Exception):
+    """This exception is raised whenever the version passed by the user 
+    is too broad and returns multiple results.
+    By definition you cannot fetch mutiple versions of a component.
+    """
+    pass

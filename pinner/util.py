@@ -1,5 +1,5 @@
 import re, copy
-from os import path, listdir
+from os import path, listdir, makedirs
 from fnmatch import filter as fnfilter
 
 import yaml
@@ -71,15 +71,23 @@ def filter_version(version, workspace):
             platform_copy.update_components(vers)
             platforms.append(platform_copy)
 
-    if len(list(platforms)) == 0:
-        raise errors.NoVersionFoundError(
-            f'Version {version} was not found in {workspace}')
+    if len(platforms) == 0:
+        raise errors.NoVersionFoundError(f'Version {version} was not found in {workspace}')
 
     return platforms
 
-def tabulate_data(data, headers):
-  _table_type = 'fancy_grid'
-  print(tabulate(data, headers, tablefmt=_table_type))
+def tabulate_data(data, headers, table_type='fancy_grid'):
+    print(tabulate(data, headers, tablefmt=table_type))
 
-def logging():
-  pass
+def create_workspace(components_workspace, name):
+    """Creates a temporary workspace for a component to be cloned to if  
+    PINNER_ARTIFACTS was not exported and no --path passed.
+    """
+    workspace = path.join(components_workspace, name)
+    try:
+        makedirs(workspace, mode=0o755, exist_ok=False)
+    except OSError as e:
+        # TODO: improve error, let the user know why dir creation failed.
+        raise e
+
+    return workspace
