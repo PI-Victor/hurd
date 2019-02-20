@@ -113,14 +113,18 @@ def describe(version, workspace):
 @add_custom_options(_global_options + _ssh_options)
 def fetch(version, workspace, path, user, ssh_pub_key, ssh_private_key):
     platforms = util.filter_version(version, workspace)
-    if not path:
-        path = '/tmp'
     if len(platforms) > 1:
         raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
 
-    platforms[0].fetch_components(path, user, ssh_pub_key, ssh_private_key)
+    platforms[0].fetch_components(
+        user, 
+        ssh_pub_key, 
+        ssh_private_key, 
+        repo_path=path,
+    )
 
-@cli.command(help="""This command will validate the defined platform pinned
+@cli.command(
+    help="""This command will validate the defined platform pinned
     version by
     trying to fetch the refs described. If multiple versions match, it will
     throw an exception.
