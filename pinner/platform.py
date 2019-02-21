@@ -15,6 +15,7 @@ class Platform:
         self.name = ''
         self.version = ''
         self._components = []
+        self._threads = []
 
         config_file = path.join(workspace, "config.yaml")
         config = util.open_file(config_file)
@@ -70,16 +71,16 @@ class Platform:
         workspace = path.join(repo_path, self.name)
 
         for component in self._components:
-            Thread(
-                target=component.fetch,
-                name=component,
-                kwargs={
-                    'workspace': workspace,
-                    'user': user,
-                    'ssh_pub_key': ssh_pub_key,
-                    'ssh_private_key': ssh_private_key,
-                },
-            ).start()
+            print(component)
+            self._threads.append(
+                Thread(
+                    target=component.fetch,
+                    name=component,
+                    args=(workspace, user, ssh_pub_key, ssh_private_key),
+                ).
+                start().
+                join()
+            )
 
 
 class MicroService:
@@ -116,14 +117,17 @@ class MicroService:
             passphrase='',
         )
         
-        clone_repository(
-            url=self.location,
-            path=ws,
-            checkout_branch='master',
-            callbacks=RemoteCallbacks(
-                credentials=keypair,
-            ),
-        )
+        try:
+            clone_repository(
+                url=self.location,
+                path=ws,
+                checkout_branch='master',
+                callbacks=RemoteCallbacks(
+                    credentials=keypair,
+                ),
+            )
+        except Exception as e:
+            raise e
 
     def _export_env(self, workspace):
         """Used to export the path of the cloned git repository.
