@@ -3,14 +3,41 @@ Pinner
 Unifies microservices under a single platform version.
 
 
+#### Workflow
+Create a new git repository, it is recommanded you give it the name of your platform.
+We are going to work with an example created specifically for this tool.
+Please see github.com/codeflavor/platform-test.
+Inside the new repo, create a `config.yaml` file. This file will defined a basic config
+for your microservices.  
+Each component, in this case each microservice, is specified as follows:   
+```yaml
+---
+name: platform-test
+components:
+  - alias: test1
+    url: git@github.com:codeflavor/test1.git
+  - alias: test2
+    url: git@github.com:codeflavor/test2.git
+  - alias: test3
+    url: git@github.com:codeflavor/test3.git
+```
+`name` - the name of the platform.
+`components` - all of the components that the platform is comprised of.
+This does not only encompass microservices, but everything the platform is comprised of.
+ e.g.: Microservices, Database schema, Swagger/OpenAPI schema, etc.
+
+This config must have a name for the component and point to the repository URL.
+
+
+
 #### Installing and deps
-This project depends on python 3.7, install
+This project depends on python 3.7+ install
 [python virtualenv](https://virtualenv.pypa.io/en/latest/).  
 
 Prerequisites:
 
 > python 3.7   
-libgit2,  libgit2-glib - macbook
+libgit2,  libgit2-glib - needed for macbook and fedora.
 
 ```bash
 $ virtualenv -p python3 .venv
@@ -24,26 +51,4 @@ Now you can install the application
 
 ```bash
 $: python3.7 setup.py install
-```
-
-##### Usage
-
-The tool has three options: `describe`, `fetch` and `validate`. The `--version`
-and the `--workspace` (alternately exporting `PINNER_WORKSPACE`) parameters are
-mandatory for commands.  
-
-
-You can find out the parameters needed and the description for each command by
-passing `--help` at the end.
-e.g.:
-```bash
-$: python3.7 pinner.py  describe --help
-Usage: pinner.py describe [OPTIONS]
-
-  This command will show you the pinned microservice versions together with
-  some relevant metadata such as pinned refs and url. The data is tabulated.
-
-Options:
-  --version TEXT  The specific platform version
-  --help          Show this message and exit.
 ```
