@@ -1,13 +1,14 @@
 Pinner
 ---
-Unifies microservices under a single platform version.
-
+Unifies microservices under a single platform version for CI/CD platform deployment.  
+This tool aims to fix the issue with managing microservices within the CI/CD pipeline,
+it will aid in the deployment of microservices under a single platform.  
 
 #### Workflow
-Create a new git repository, it is recommanded you give it the name of your platform.
-We are going to work with an example created specifically for this tool.
-Please see github.com/codeflavor/platform-test.
-Inside the new repo, create a `config.yaml` file. This file will defined a basic config
+Create a new git repository, it is recommanded you give it the name of your platform.  
+We are going to work with an example created specifically for this tool.  
+Please see github.com/codeflavor/platform-test.  
+Inside the new repo, create a `config.yaml` file. This file will define a basic config
 for your microservices.  
 Each component, in this case each microservice, is specified as follows:   
 ```yaml
@@ -21,12 +22,12 @@ components:
   - alias: test3
     url: git@github.com:codeflavor/test3.git
 ```
-`name` - the name of the platform.
-`components` - all of the components that the platform is comprised of.
+`name` - the name of the platform.  
+`components` - all of the components that the platform contains.  
 This does not only encompass microservices, but everything the platform is comprised of.
- e.g.: Microservices, Database schema, Swagger/OpenAPI schema, etc.
+ e.g.: Microservices, Database schema, Swagger/OpenAPI schema, etc.  
 
-This config must have a name for the component and point to the repository URL.
+This config must have a name for the component and point to the repository URL.  
 
 
 
