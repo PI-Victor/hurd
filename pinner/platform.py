@@ -17,7 +17,7 @@ class Platform:
         self._components = []
         self._threads = []
 
-        config_file = path.join(workspace, "config.yaml")
+        config_file = path.join(workspace, 'config.yaml')
         config = util.open_file(config_file)
 
         for data in config:
@@ -34,7 +34,7 @@ class Platform:
                     for component in value:
                         self._components.append(
                             MicroService(
-                                alias=component.get('name'),
+                                alias=component.get('alias'),
                                 location=component.get('url'),
                             )
                         )
@@ -55,7 +55,7 @@ class Platform:
             raise errors.NoComponentsDefinedError(f'No components are defined for {self.version}')
 
         for component in self._components:
-            match = next((c for c in vers_components if c.get('name') == component), None)
+            match = next((c for c in vers_components if c.get('alias') == component), None)
             if not match:
                 raise errors.ComponentUndefinedError(f"Component '{component['name']}' does not have a defined alias in config.yaml")
 
