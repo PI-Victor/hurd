@@ -14,12 +14,13 @@ def validate_version(ctx, param, value):
 def validate_workspace(ctx, param, value):
     """Custom validation for --workspace option"""
     if param.name == 'workspace' and not value:
+        if not ('PINNER_WORKSPACE' in environ):
+            print(environ)
         if not ('PINNER_WORKSPACE' in environ) or environ.get('PINNER_WORKSPACE') == '':
             raise click.UsageError("""pass --workspace or export
             PINNER_WORKSPACE pointing to the full path directory where the
             YAML platform version is located.
-            """
-            )
+            """)
     return value
 
 _global_options = [
@@ -53,13 +54,13 @@ _ssh_options = [
         '--ssh-pub-key',
         help='Full path to the ssh public key used to clone the repositories.',
         type=click.Path(),
-        envvar='PINNER_AUTH_PUBLIC_KEY',
+        envvar='PINNER_PATH_PUBLIC_KEY',
     ),
     click.option(
         '--ssh-priv-key',
         help='Full path to the ssh private key used to clone the repositories.',
         type=click.Path(),
-        envvar='PINNER_AUTH_PRIVATE_KEY',
+        envvar='PINNER_PATH_PRIVATE_KEY',
     ),
     click.option(
         '--path',
