@@ -1,3 +1,4 @@
+import asyncio
 from os import environ
 
 import click
@@ -5,17 +6,16 @@ import click
 from pinner import util
 from pinner import errors
 
-def validate_version(ctx, param, value):
+
+def validate_version(ctx, param, value) -> str:
     """Custom validation for --version option"""
     if param.name == 'version' and not value:
         raise click.BadParameter('you need to pass a platform version')
     return value
 
-def validate_workspace(ctx, param, value):
+def validate_workspace(ctx, param, value) -> str:
     """Custom validation for --workspace option"""
     if param.name == 'workspace' and not value:
-        if not ('PINNER_WORKSPACE' in environ):
-            print(environ)
         if not ('PINNER_WORKSPACE' in environ) or environ.get('PINNER_WORKSPACE') == '':
             raise click.UsageError("""pass --workspace or export
             PINNER_WORKSPACE pointing to the full path directory where the
@@ -93,19 +93,17 @@ def cli():
     """
 )
 @add_custom_options(_global_options)
-def describe(version, workspace):
-    _table_headers = ['Platform version', 'Alias', 'URL', 'Refs', 'Hash']
-
-    platforms = util.filter_version(version, workspace)
-    vers = []
-    for version in [c for c in platforms]:
-        for v in version._components:
-            # TODO: this stays, however it's not working as intented since the
-            # environment export is process bound.
-            # alternatively the shell command can be used.
-          v._export_env(workspace=workspace)
-          vers.append([version, v.alias, v.location, v.refs, v.hash])
-    util.tabulate_data(vers, _table_headers)
+def describe(version, workspace) -> None:
+    async def _describe(version, workspace):
+        _table_headers = ['Platform version', 'Alias', 'URL', 'Refs', 'Hash']
+        platforms = await util.filter_version(version, workspace)
+        vers = []
+        for version in [c for c in platforms]:
+            for v in version._components:
+                await v._export_env(workspace=workspace)
+                vers.append([version, v.alias, v.location, v.refs, v.hash])
+        await util.tabulate_data(vers, _table_headers)
+    _async_wrapper(_describe(version, workspace))
 
 @cli.command(
     help="""This command will start fetching all the repositories defined in a
@@ -114,13 +112,15 @@ def describe(version, workspace):
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
-    platforms = util.filter_version(version, workspace)
-    if len(platforms) > 1:
-        raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
+def fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
+    async def _fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
+        platforms = await util.filter_version(version, workspace)
 
-    platforms[0].fetch_components(path, user, ssh_pub_key, ssh_priv_key)
+        if len(platforms) > 1:
+            raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
 
+        await platforms[0].fetch_components(path, user, ssh_pub_key, ssh_priv_key)
+    _async_wrapper(_fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key))
 @cli.command(
     help="""This command will validate the defined platform pinned
     version by
@@ -129,7 +129,7 @@ def fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def validate(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
+def validate(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
     pass
 
 @cli.command(
@@ -140,8 +140,14 @@ def validate(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def tag(version, workspace, path, user, ssh_pub_key, ssh_priv_key):
+def tag(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
     pass
+
+def _async_wrapper(func) -> None:
+    """A simply async wrapper executor that bypasses the fact that click is
+    not 
+    """
+    asyncio.run(func)
 
 if __name__ == '__main__':
     cli()
