@@ -94,7 +94,7 @@ def cli():
 )
 @add_custom_options(_global_options)
 def describe(version, workspace) -> None:
-    async def _describe(version, workspace):
+    async def _describe(version, workspace) -> None:
         _table_headers = ['Platform version', 'Alias', 'URL', 'Refs', 'Hash']
         platforms = await util.filter_version(version, workspace)
         vers = []
@@ -144,8 +144,8 @@ def tag(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
     pass
 
 def _async_wrapper(func) -> None:
-    """A simply async wrapper executor that bypasses the fact that click is
-    not 
+    """A simple async wrapper executor that bypasses the fact that click is
+    not async compatible.
     """
     asyncio.run(func)
 

@@ -18,7 +18,7 @@ def open_file(config_file) -> List[yaml.YAMLObject]:
     with open(config_file) as config:
         return yaml.safe_load_all(config.read())
 
-def get_versions_paths(workspace_path, version='') ->List[str]:
+async def get_versions_paths(workspace_path, version='') ->List[str]:
     """Walks the specified directory where the platform versioning is located
     and will try to find all the directories that match a regex of v[0-9]+.
     e.g.: v1, v2, v3.
@@ -57,7 +57,7 @@ async def filter_version(version, workspace) -> List[Platform]:
     :param workspace: string full path to the workspace.
     """
     platform = Platform(workspace)
-    yaml_files = get_versions_paths(workspace, version)
+    yaml_files = await get_versions_paths(workspace, version)
     contents = list(open_file(f) for f in yaml_files)
 
     platforms = []
@@ -80,7 +80,7 @@ async def filter_version(version, workspace) -> List[Platform]:
 async def tabulate_data(data, headers, table_type='fancy_grid'):
     print(tabulate(data, headers, tablefmt=table_type))
 
-async def create_workspace(components_workspace, name):
+def create_workspace(components_workspace, name):
     """Creates a temporary workspace for a component to be cloned to, if  
     PINNER_ARTIFACTS was not exported and no --path passed.
     """
