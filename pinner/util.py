@@ -1,7 +1,5 @@
-import re, copy, asyncio
+import re, copy
 from os import path, listdir, makedirs
-from typing import List
-from fnmatch import filter as fnfilter
 
 import yaml
 from tabulate import tabulate
@@ -10,21 +8,27 @@ from .platform import Platform, MicroService
 from . import errors
 
 
-def open_file(config_file) -> List[yaml.YAMLObject]:
+def open_file(config_file):
     """Opens a file and sends its contents to be consumer by the yaml library.
+
     :param config_file: string full path to the config file of the platform.
+
     :return: a generator object that contains the YAML spec of the file.
     """
     with open(config_file) as config:
         return yaml.safe_load_all(config.read())
 
-async def get_versions_paths(workspace_path, version='') ->List[str]:
+
+def get_versions_paths(workspace_path, version):
     """Walks the specified directory where the platform versioning is located
     and will try to find all the directories that match a regex of v[0-9]+.
     e.g.: v1, v2, v3.
+    
     :param workspace_path: string path to the workspace where the configuration
     is located.
+    
     :param version: string the specific version to search for.
+    
     :return: a list of all yaml files present in the specified version directory.
     """
     reg_vers = re.compile(version.split('.')[0])
@@ -50,14 +54,16 @@ async def get_versions_paths(workspace_path, version='') ->List[str]:
 
     return list(map(lambda p: path.join(vers_path, p), versions))
 
-async def filter_version(version, workspace) -> List[Platform]:
+def filter_version(version, workspace):
     """Creates a new list of Platform objects that contain the YAML config for
     the desired 
+
     :param version: string the version to search for
+    
     :param workspace: string full path to the workspace.
     """
     platform = Platform(workspace)
-    yaml_files = await get_versions_paths(workspace, version)
+    yaml_files = get_versions_paths(workspace, version)
     contents = list(open_file(f) for f in yaml_files)
 
     platforms = []
@@ -77,7 +83,7 @@ async def filter_version(version, workspace) -> List[Platform]:
 
     return platforms
 
-async def tabulate_data(data, headers, table_type='fancy_grid'):
+def tabulate_data(data, headers, table_type='fancy_grid'):
     print(tabulate(data, headers, tablefmt=table_type))
 
 def create_workspace(components_workspace, name):

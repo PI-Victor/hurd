@@ -1,5 +1,3 @@
-from threading import Thread
-from typing import List
 from os import path, environ
 
 from pygit2 import clone_repository, Keypair, RemoteCallbacks
@@ -12,21 +10,16 @@ class Platform:
     """Platform holds the general metadata and functionality about the platform
     config.
     """
-    threads: List[Thread]
-    name: str = None
-    version: str = None
-    components: List = []
+    name = None
+    version = None
+    _components = []
 
-    def __init__(self, workspace) -> None:
-        self._components = []
-        self._threads = []
-
+    def __init__(self, workspace):
         config_file = path.join(workspace, 'config.yaml')
         config = util.open_file(config_file)
+        self._parse_config(config)
 
-        self.parse_config(config)
-
-    def parse_config(self, config) -> None:
+    def _parse_config(self, config):
         for data in config:
             self.name = data.get('name')
             if not self.name:
@@ -42,29 +35,35 @@ class Platform:
                         self._components.append(
                             MicroService(
                                 alias=component.get('alias'),
-                                location=component.get('url'),
+                                url=component.get('url'),
                             )
                         )
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return self.version
 
-    def __eq__(self, version) -> bool:
+    def __eq__(self, version):
         return self.version == version
 
-    def update_components(self, vers_config) -> None:
+    def update_components(self, vers_config):
         self.version = vers_config.get('version')
         if not self.version:
-            raise errors.NoVersionFoundError('No platform version was defined in config file')
+            raise errors.NoVersionFoundError('No platform version was defined'
+            'in config file'
+            )
 
         vers_components = vers_config.get('components')
         if not vers_components:
-            raise errors.NoComponentsDefinedError(f'No components are defined for {self.version}')
+            raise errors.NoComponentsDefinedError(f'No components are defined' 'for {self.version}'
+            )
 
         for component in self._components:
             match = next((c for c in vers_components if c.get('alias') == component), None)
             if not match:
-                raise errors.ComponentUndefinedError(f"Component '{component['name']}' does not have a defined alias in config.yaml")
+                raise errors.ComponentUndefinedError(f"Component "
+                "'{component['name']}' does not have a defined alias"
+                "in config.yaml"
+                )
 
             component.refs = match.get('refs')
             if not component.refs:
@@ -74,65 +73,65 @@ class Platform:
             if not component.hash:
                 raise errors.ComponentRefsUndefinedError()
 
-    async def fetch_components(self, repo_path, user, ssh_private_key, ssh_pub_key) -> None:
+    def fetch_components(self, repo_path, ssh_pub_key, ssh_priv_key):
         workspace = path.join(repo_path, self.name)
-
         for component in self._components:
-            print(component)
-            await component.fetch(
-                workspace, user, ssh_pub_key, ssh_private_key,
+            component.fetch(
+                workspace, ssh_pub_key, ssh_priv_key,
             )
 
 
 class MicroService:
     """MicroService holds the microservice config and relevant functionality"""    
-    refs: str = None
-    hash: str = None
+    refs = None
+    hash = None
 
     
-    def __init__(self, alias, location) -> None:
+    def __init__(self, alias, url):
         self.alias = alias
-        self.location = location
+        self.url = url
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return self.alias
 
-    def __eq__(self, alias) -> bool:
+    def __eq__(self, alias):
         return self.alias == alias
 
-    async def fetch(self, workspace, user, ssh_pub_key, ssh_private_key, validate=False) -> None:
+    def fetch(self, workspace, ssh_pub_key, ssh_priv_key, validate=False):
         """This function will try to create the workspace for the component that
-        will be cloned, will fetch the component and will export the environment 
+        will be cloned. It will fetch the component and will export the environment 
         variable that points to component cloned repository.
         """
-        await self._clone(workspace, user, ssh_pub_key, ssh_private_key)
+        self._clone(workspace, ssh_pub_key, ssh_priv_key)
         if validate:
-            await self._export_env(workspace)
+            self._export_env(workspace)
 
-    async def _clone(self, workspace, user, ssh_pub_key, ssh_private_key) -> None:
+    def _clone(self, workspace, ssh_pub_key, ssh_priv_key):
         ws = util.create_workspace(workspace, self.alias)
-        print(f'{user}, {ssh_private_key}, {ssh_pub_key}')
+        print(f'{ssh_priv_key}, {ssh_pub_key}')
         keypair = Keypair(
-            username=user,
+            username='pi-victor',
             pubkey=ssh_pub_key,
-            privkey=ssh_private_key,
+            privkey=ssh_priv_key,
             passphrase='',
         )
-        
+
         try:
-            clone_repository(
-                url=self.location,
-                path=ws,
-                checkout_branch='master',
-                callbacks=RemoteCallbacks(
-                    credentials=keypair,
-                ),
+            cb = RemoteCallbacks(
+                credentials=keypair,
             )
+            clone_repository(
+                url=self.url,
+                path=ws,
+                checkout_branch=self.refs,
+                callbacks=cb,
+            )
+            #clone_repository()
         except Exception as e:
             # TODO: make this more relevant.
             raise e
 
-    async def _export_env(self, workspace) -> None:
+    def _export_env(self, workspace):
         """Used to export the path of the cloned git repository.
         Useful in CI/CD platform pipelines.
         """

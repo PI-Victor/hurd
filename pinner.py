@@ -1,4 +1,3 @@
-import asyncio
 from os import environ
 
 import click
@@ -44,13 +43,6 @@ _global_options = [
 
 _ssh_options = [
     click.option(
-        '--user',
-        '-u',
-        default='git',
-        help='User to be used for cloning the repositories.',
-        envvar='PINNER_AUTH_USERNAME',
-    ),
-    click.option(
         '--ssh-pub-key',
         help='Full path to the ssh public key used to clone the repositories.',
         type=click.Path(),
@@ -94,16 +86,14 @@ def cli():
 )
 @add_custom_options(_global_options)
 def describe(version, workspace) -> None:
-    async def _describe(version, workspace) -> None:
-        _table_headers = ['Platform version', 'Alias', 'URL', 'Refs', 'Hash']
-        platforms = await util.filter_version(version, workspace)
-        vers = []
-        for version in [c for c in platforms]:
-            for v in version._components:
-                await v._export_env(workspace=workspace)
-                vers.append([version, v.alias, v.location, v.refs, v.hash])
-        await util.tabulate_data(vers, _table_headers)
-    _async_wrapper(_describe(version, workspace))
+    _table_headers = ['Platform version', 'Alias', 'URL', 'Refs', 'Hash']
+    platforms = util.filter_version(version, workspace)
+    vers = []
+    for version in [c for c in platforms]:
+        for v in version._components:
+            v._export_env(workspace=workspace)
+            vers.append([version, v.alias, v.location, v.refs, v.hash])
+    util.tabulate_data(vers, _table_headers)
 
 @cli.command(
     help="""This command will start fetching all the repositories defined in a
@@ -112,15 +102,13 @@ def describe(version, workspace) -> None:
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
-    async def _fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
-        platforms = await util.filter_version(version, workspace)
+def fetch(version, workspace, path, ssh_pub_key, ssh_priv_key):
+    platforms = util.filter_version(version, workspace)
 
-        if len(platforms) > 1:
-            raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
+    if len(platforms) > 1:
+        raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
+    platforms[0].fetch_components(path, ssh_pub_key, ssh_priv_key)
 
-        await platforms[0].fetch_components(path, user, ssh_pub_key, ssh_priv_key)
-    _async_wrapper(_fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key))
 @cli.command(
     help="""This command will validate the defined platform pinned
     version by
@@ -129,7 +117,7 @@ def fetch(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def validate(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
+def validate(version, workspace, path, ssh_pub_key, ssh_priv_key):
     pass
 
 @cli.command(
@@ -140,14 +128,8 @@ def validate(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
     """
 )
 @add_custom_options(_global_options + _ssh_options)
-def tag(version, workspace, path, user, ssh_pub_key, ssh_priv_key) -> None:
+def tag(version, workspace, path, ssh_pub_key, ssh_priv_key):
     pass
-
-def _async_wrapper(func) -> None:
-    """A simple async wrapper executor that bypasses the fact that click is
-    not async compatible.
-    """
-    asyncio.run(func)
 
 if __name__ == '__main__':
     cli()
