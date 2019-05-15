@@ -53,3 +53,15 @@ class MultiplePlatformVersionsFound(Exception):
     By definition you cannot fetch mutiple versions of a component.
     """
     pass
+
+class NoConfigFileFound(Exception):
+    """This exception is raised when the config.yaml is not found in the
+    given directory.
+    """
+    pass
+
+class NoComponentLocationDefined(Exception):
+    """This exception is raised when there is no URL defined for the 
+    component.
+    """
+    pass

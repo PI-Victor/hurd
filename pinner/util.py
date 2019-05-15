@@ -15,8 +15,11 @@ def open_file(config_file):
 
     :return: a generator object that contains the YAML spec of the file.
     """
-    with open(config_file) as config:
-        return yaml.safe_load_all(config.read())
+    try:
+        with open(config_file) as config:
+            return yaml.safe_load_all(config.read())
+    except FileNotFoundError:
+        raise errors.NoConfigFileFound(f"No 'config.yaml' file found in directory!")
 
 
 def get_versions_paths(workspace_path, version):
@@ -49,8 +52,7 @@ def get_versions_paths(workspace_path, version):
     versions = list(filter(lambda p: re.search(reg_vers_file, p), listdir(vers_path)))
 
     if not versions:
-        raise errors.NoVersionFoundError(
-            f'No version {version} has been defined in path {vers_path}')
+        raise errors.NoVersionFoundError(f'No version {version} has been defined in path {vers_path}')
 
     return list(map(lambda p: path.join(vers_path, p), versions))
 

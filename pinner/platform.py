@@ -72,19 +72,22 @@ class Platform:
             component.hash = match.get('hash')
             if not component.hash:
                 raise errors.ComponentRefsUndefinedError()
+            
+            component.location = match.get('url')
+            if not component.url:
+                raise errors.NoComponentLocationDefined()
 
     def fetch_components(self, repo_path, ssh_pub_key, ssh_priv_key):
         workspace = path.join(repo_path, self.name)
         for component in self._components:
-            component.fetch(
-                workspace, ssh_pub_key, ssh_priv_key,
-            )
+            component.fetch(workspace, ssh_pub_key, ssh_priv_key)
 
 
 class MicroService:
     """MicroService holds the microservice config and relevant functionality"""    
     refs = None
     hash = None
+    url = None
 
     
     def __init__(self, alias, url):

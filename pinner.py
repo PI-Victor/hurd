@@ -92,7 +92,7 @@ def describe(version, workspace) -> None:
     for version in [c for c in platforms]:
         for v in version._components:
             v._export_env(workspace=workspace)
-            vers.append([version, v.alias, v.location, v.refs, v.hash])
+            vers.append([version, v.alias, v.url, v.refs, v.hash])
     util.tabulate_data(vers, _table_headers)
 
 @cli.command(

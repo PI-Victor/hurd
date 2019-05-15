@@ -5,7 +5,6 @@ Click==7.0
 isort==4.3.4
 lazy-object-proxy==1.3.1
 mccabe==0.6.1
-pinner==0.1.0
 pycodestyle==2.5.0
 pycparser==2.17
 pygit2==0.27.4
