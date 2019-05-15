@@ -67,7 +67,7 @@ class Platform:
 
             component.refs = match.get('refs')
             if not component.refs:
-                raise errors.ComponentTagUndefinedError()
+                raise errors.ComponentTagUndefinedError("Defined Tag cannot be found!")
 
             component.hash = match.get('hash')
             if not component.hash:

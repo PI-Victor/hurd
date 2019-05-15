@@ -65,3 +65,9 @@ class NoComponentLocationDefined(Exception):
     component.
     """
     pass
+
+class CannotCreateDirectory(Exception):
+  """This exception is raised whenever the temporary workspace can not 
+  be created. 
+  """
+  pass
