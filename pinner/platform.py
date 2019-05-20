@@ -110,30 +110,38 @@ class MicroService:
         if validate:
             self._export_env(workspace)
 
-    def _clone(self, workspace, ssh_pub_key, ssh_priv_key):
+    def _clone(
+        self,
+        workspace,
+        ssh_pub_key,
+        ssh_priv_key,
+        ssh_user='git',
+        ssh_pass='',
+    ):
         ws = util.create_workspace(workspace, self.alias)
-        print(f'{ssh_priv_key}, {ssh_pub_key}')
         keypair = Keypair(
-            username='pi-victor',
+            username=ssh_user,
             pubkey=ssh_pub_key,
             privkey=ssh_priv_key,
-            passphrase='',
+            passphrase=ssh_pass,
         )
 
         try:
             cb = RemoteCallbacks(
                 credentials=keypair,
             )
-            clone_repository(
+            repo = clone_repository(
                 url=self.url,
                 path=ws,
-                checkout_branch=self.refs,
                 callbacks=cb,
             )
-            #clone_repository()
-        except Exception as e:
-            # TODO: make this more relevant.
-            raise e
+            try:
+                repo.checkout(self.refs)
+                print(f'Cloned {repo} to {ws}')
+            except Exception as err:
+                raise errors.CannotFetchRef(f'Cannot fetch ref: {self.refs}')
+        except Exception as err:
+                raise errors.CannotCloneRepository(f'Cannot clone repository: {err}')
 
     def _export_env(self, workspace):
         """Used to export the path of the cloned git repository.

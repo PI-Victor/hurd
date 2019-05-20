@@ -67,7 +67,19 @@ class NoComponentLocationDefined(Exception):
     pass
 
 class CannotCreateDirectory(Exception):
-  """This exception is raised whenever the temporary workspace can not 
-  be created. 
-  """
-  pass
+    """This exception is raised whenever the temporary workspace can not 
+    be created. 
+    """
+    pass
+
+class CannotCloneRepository(Exception):
+    """This exception is raised whenever the specified repository cannot be
+     cloned.
+     """
+    pass
+
+
+class CannotFetchRef(Exception):
+    """This exception is raised whenever the specified ref cannot be fetched.
+    """
+    pass
