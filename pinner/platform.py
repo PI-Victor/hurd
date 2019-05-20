@@ -48,26 +48,24 @@ class Platform:
     def update_components(self, vers_config):
         self.version = vers_config.get('version')
         if not self.version:
-            raise errors.NoVersionFoundError('No platform version was defined'
-            'in config file'
-            )
+            raise errors.NoVersionFoundError('''No platform version was defined
+            in config file''')
 
         vers_components = vers_config.get('components')
         if not vers_components:
-            raise errors.NoComponentsDefinedError(f'No components are defined' 'for {self.version}'
-            )
+            raise errors.NoComponentsDefinedError(f'''No components are 
+            defined for {self.version}''')
 
         for component in self._components:
             match = next((c for c in vers_components if c.get('alias') == component), None)
             if not match:
-                raise errors.ComponentUndefinedError(f"Component "
-                "'{component['name']}' does not have a defined alias"
-                "in config.yaml"
-                )
+                raise errors.ComponentUndefinedError(f'''Component 
+                '{component['name']}' does not have a defined alias in
+                 config.yaml''')
 
             component.refs = match.get('refs')
             if not component.refs:
-                raise errors.ComponentTagUndefinedError("Defined Tag cannot be found!")
+                raise errors.ComponentTagUndefinedError()
 
             component.hash = match.get('hash')
             if not component.hash:
@@ -84,7 +82,9 @@ class Platform:
 
 
 class MicroService:
-    """MicroService holds the microservice config and relevant functionality"""    
+    """MicroService holds the microservice config and relevant
+     functionality.
+     """
     refs = None
     hash = None
     url = None
@@ -101,9 +101,9 @@ class MicroService:
         return self.alias == alias
 
     def fetch(self, workspace, ssh_pub_key, ssh_priv_key, validate=False):
-        """This function will try to create the workspace for the component that
-        will be cloned. It will fetch the component and will export the environment 
-        variable that points to component cloned repository.
+        """This function will try to create the workspace for the component
+         that will be cloned. It will fetch the component and will export the
+          environment variable that points to component cloned repository.
         """
         self._clone(workspace, ssh_pub_key, ssh_priv_key)
         if validate:

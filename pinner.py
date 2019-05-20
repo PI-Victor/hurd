@@ -6,20 +6,19 @@ from pinner import util
 from pinner import errors
 
 
-def validate_version(ctx, param, value) -> str:
+def validate_version(ctx, param, value):
     """Custom validation for --version option"""
     if param.name == 'version' and not value:
         raise click.BadParameter('you need to pass a platform version')
     return value
 
-def validate_workspace(ctx, param, value) -> str:
+def validate_workspace(ctx, param, value):
     """Custom validation for --workspace option"""
     if param.name == 'workspace' and not value:
         if not ('PINNER_WORKSPACE' in environ) or environ.get('PINNER_WORKSPACE') == '':
-            raise click.UsageError("""pass --workspace or export
-            PINNER_WORKSPACE pointing to the full path directory where the
-            YAML platform version is located.
-            """)
+            raise click.UsageError("""pass --workspace or export 
+            PINNER_WORKSPACE pointing to the full path directory where the 
+            YAML platform version is located.""")
     return value
 
 _global_options = [
@@ -34,8 +33,7 @@ _global_options = [
         '-w',
         envvar='PINNER_WORKSPACE',
         help="""The fullpath to the workspace containing the configuration and
-        the platform versioning in yaml format.
-        """,
+        the platform versioning in yaml format.""",
         callback=validate_workspace,
         type=click.Path(exists=True),
     ),
@@ -50,17 +48,16 @@ _ssh_options = [
     ),
     click.option(
         '--ssh-priv-key',
-        help='Full path to the ssh private key used to clone the repositories.',
+        help="""Full path to the ssh private key used to clone the 
+        repositories.""",
         type=click.Path(),
         envvar='PINNER_PATH_PRIVATE_KEY',
     ),
     click.option(
         '--path',
         '-p',
-        help="""
-        Full path to where the artifacts should be cloned. If no path is given
-        it will default to /tmp/${name-of-the-platform}/
-        """,
+        help="""Full path to where the artifacts should be cloned. If no path
+         is given it will default to /tmp/${name-of-the-platform}""",
         type=click.Path(),
         default='/tmp',
         envvar='PINNER_ARTIFACTS',
@@ -81,8 +78,7 @@ def cli():
 
 @cli.command(
     help="""Displays tabulated metadata about the pinned microservice platform
-    version.
-    """
+    version."""
 )
 @add_custom_options(_global_options)
 def describe(version, workspace) -> None:
@@ -124,8 +120,7 @@ def validate(version, workspace, path, ssh_pub_key, ssh_priv_key):
     help="""This command will create a new git tag in the repositories defined
     by the YAML platform version config.
     Throws an exception if a a tag has been defined but does not match the one
-    specified.
-    """
+    specified."""
 )
 @add_custom_options(_global_options + _ssh_options)
 def tag(version, workspace, path, ssh_pub_key, ssh_priv_key):
