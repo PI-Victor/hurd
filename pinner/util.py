@@ -94,9 +94,9 @@ def create_workspace(components_workspace, name):
     workspace = path.join(components_workspace, name)
     try:
         makedirs(workspace, mode=0o755, exist_ok=False)
-    except OSError:
+    except OSError as err:
         # TODO: improve error, let the user know why dir creation failed.
-        raise errors.CannotCreateDirectory(f'Cannot create temporary \
-         directory')
+        raise errors.CannotCreateDirectory(f'''Cannot create temporary
+         directory: {err}''')
 
     return workspace

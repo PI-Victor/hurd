@@ -23,7 +23,8 @@ class Platform:
         for data in config:
             self.name = data.get('name')
             if not self.name:
-                raise errors.NoPlatformNameDefined('No platform name defined in config.yaml')
+                raise errors.NoPlatformNameDefined('No platform name
+                 defined in config.yaml')
 
             for key, value in data.items():
                 if key == 'name':
