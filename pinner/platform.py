@@ -84,12 +84,11 @@ class Platform:
 
 class MicroService:
     """MicroService holds the microservice config and relevant
-     functionality.
-     """
+    functionality.
+    """
     refs = None
     hash = None
     url = None
-
     
     def __init__(self, alias, url):
         self.alias = alias
@@ -103,8 +102,8 @@ class MicroService:
 
     def fetch(self, workspace, ssh_pub_key, ssh_priv_key, validate=False):
         """This function will try to create the workspace for the component
-         that will be cloned. It will fetch the component and will export the
-          environment variable that points to component cloned repository.
+        that will be cloned. It will fetch the component and will export the
+        environment variable that points to component cloned repository.
         """
         self._clone(workspace, ssh_pub_key, ssh_priv_key)
         if validate:
@@ -127,9 +126,7 @@ class MicroService:
         )
 
         try:
-            cb = RemoteCallbacks(
-                credentials=keypair,
-            )
+            cb = RemoteCallbacks(credentials=keypair)
             repo = clone_repository(
                 url=self.url,
                 path=ws,

@@ -20,7 +20,6 @@ def open_file(config_file):
         raise errors.NoConfigFileFound(f'''No 'config.yaml' file found in
          directory!''')
 
-
 def get_versions_paths(workspace_path, version):
     """Walks the specified directory where the platform versioning is located
     and will try to find all the directories that match a regex of v[0-9]+.
@@ -29,7 +28,7 @@ def get_versions_paths(workspace_path, version):
     is located.
     :param version: string the specific version to search for.
     :return: a list of all yaml files present in the specified version
-     directory.
+    directory.
     """
     reg_vers = re.compile(version.split('.')[0])
 
@@ -95,7 +94,6 @@ def create_workspace(components_workspace, name):
     try:
         makedirs(workspace, mode=0o755, exist_ok=False)
     except OSError as err:
-        # TODO: improve error, let the user know why dir creation failed.
         raise errors.CannotCreateDirectory(f'''Cannot create temporary
          directory: {err}''')
 

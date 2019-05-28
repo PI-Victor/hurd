@@ -6,11 +6,13 @@ class NoVersionFoundError(Exception):
     """
     pass
 
+
 class NoComponentsDefinedError(Exception):
     """This exception is raised when there are no components defined under a
     platform.
     """
     pass
+
 
 class NoPlatformVersionDefined(Exception):
     """This exception is raised when there is no platform version defined in
@@ -18,11 +20,13 @@ class NoPlatformVersionDefined(Exception):
     """
     pass
 
+
 class NoPlatformNameDefined(Exception):
     """This exception is raised when there is no platform name defined in
     config.yaml.
     """
     pass
+
 
 class ComponentUndefinedError(Exception):
     """This exception is raised whenever an alias does not have a mapping
@@ -30,15 +34,18 @@ class ComponentUndefinedError(Exception):
     """
     pass
 
+
 class ComponentTagUndefinedError(Exception):
     """This exception is raised whenever a tag is undefined on a component
     """
     pass
 
+
 class ComponentRefsUndefinedError(Exception):
     """This exception is raised whenever a ref is undefined on a component
     """
     pass
+
 
 class SemverNonCompliantError(Exception):
     """This exception is raised whenever the requested version does not 
@@ -54,11 +61,13 @@ class MultiplePlatformVersionsFound(Exception):
     """
     pass
 
+
 class NoConfigFileFound(Exception):
     """This exception is raised when the config.yaml is not found in the
     given directory.
     """
     pass
+
 
 class NoComponentLocationDefined(Exception):
     """This exception is raised when there is no URL defined for the 
@@ -66,11 +75,13 @@ class NoComponentLocationDefined(Exception):
     """
     pass
 
+
 class CannotCreateDirectory(Exception):
     """This exception is raised whenever the temporary workspace can not 
     be created. 
     """
     pass
+
 
 class CannotCloneRepository(Exception):
     """This exception is raised whenever the specified repository cannot be
