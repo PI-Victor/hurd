@@ -81,7 +81,7 @@ def cli():
     version."""
 )
 @add_custom_options(_global_options)
-def describe(version, workspace) -> None:
+def describe(version, workspace):
     _table_headers = ['Platform version', 'Alias', 'URL', 'Refs', 'Hash']
     platforms = util.filter_version(version, workspace)
     vers = []
