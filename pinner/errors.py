@@ -1,7 +1,7 @@
 class NoVersionFoundError(Exception):
     """This exception is thrown when
-    a) there is no directory found for a
-    specific version in the specified workspace.
+    a) there is no directory found for a specific version in the specified
+    workspace. 
     b) there is YAML version file that matches the desired version.
     """
     pass
@@ -56,8 +56,8 @@ class SemverNonCompliantError(Exception):
 
 class MultiplePlatformVersionsFound(Exception):
     """This exception is raised whenever the version passed by the user 
-    is too broad and returns multiple results.
-    By definition you cannot fetch mutiple versions of a component.
+    is too broad and returns multiple results. By definition you cannot fetch
+    mutiple versions of a component.
     """
     pass
 
@@ -85,8 +85,8 @@ class CannotCreateDirectory(Exception):
 
 class CannotCloneRepository(Exception):
     """This exception is raised whenever the specified repository cannot be
-     cloned.
-     """
+    cloned.
+    """
     pass
 
 

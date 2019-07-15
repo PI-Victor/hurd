@@ -7,8 +7,8 @@ from . import errors
 
 
 class Platform:
-    """Platform holds the general metadata and functionality about the platform
-    config.
+    """Platform holds the general metadata and functionality about the 
+    platform config.
     """
     name = None
     version = None
@@ -23,8 +23,9 @@ class Platform:
         for data in config:
             self.name = data.get('name')
             if not self.name:
-                raise errors.NoPlatformNameDefined('''No platform name
-                 defined in config.yaml''')
+                raise errors.NoPlatformNameDefined(
+                    """No platform name defined in config.yaml"""
+                )
 
             for key, value in data.items():
                 if key == 'name':
@@ -49,20 +50,23 @@ class Platform:
     def update_components(self, vers_config):
         self.version = vers_config.get('version')
         if not self.version:
-            raise errors.NoVersionFoundError('''No platform version was defined
-            in config file''')
+            raise errors.NoVersionFoundError(
+                """No platform version was defined in config file"""
+            )
 
         vers_components = vers_config.get('components')
         if not vers_components:
-            raise errors.NoComponentsDefinedError(f'''No components are 
-            defined for {self.version}''')
+            raise errors.NoComponentsDefinedError(
+                f"""No components are defined for {self.version}"""
+            )
 
         for component in self._components:
             match = next((c for c in vers_components if c.get('alias') == component), None)
             if not match:
-                raise errors.ComponentUndefinedError(f'''Component 
-                '{component['name']}' does not have a defined alias in
-                 config.yaml''')
+                raise errors.ComponentUndefinedError(
+                    f"""Component '{component['name']}' does not have a 
+                    defined alias in config.yaml"""
+                 )
 
             component.refs = match.get('refs')
             if not component.refs:
@@ -136,9 +140,13 @@ class MicroService:
                 repo.checkout(self.refs)
                 print(f'Cloned {repo} to {ws}')
             except Exception as err:
-                raise errors.CannotFetchRef(f'Cannot fetch ref: {self.refs}')
+                raise errors.CannotFetchRef(
+                    f'Cannot fetch ref: {self.refs}'
+                )
         except Exception as err:
-                raise errors.CannotCloneRepository(f'Cannot clone repository: {err}')
+                raise errors.CannotCloneRepository(
+                    f'Cannot clone repository: {err}'
+                )
 
     def _export_env(self, workspace):
         """Used to export the path of the cloned git repository.

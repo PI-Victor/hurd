@@ -17,41 +17,46 @@ def open_file(config_file):
         with open(config_file) as config:
             return yaml.safe_load_all(config.read())
     except FileNotFoundError:
-        raise errors.NoConfigFileFound(f'''No 'config.yaml' file found in
-         directory!''')
+        raise errors.NoConfigFileFound(
+            f"""No 'config.yaml' file found in directory!"""
+        )
 
 def get_versions_paths(workspace_path, version):
     """Walks the specified directory where the platform versioning is located
     and will try to find all the directories that match a regex of v[0-9]+.
     e.g.: v1, v2, v3.
-    :param workspace_path: string path to the workspace where the configuration
-    is located.
+    :param workspace_path: string path to the workspace where the 
+    configuration is located.
     :param version: string the specific version to search for.
     :return: a list of all yaml files present in the specified version
     directory.
     """
     reg_vers = re.compile(version.split('.')[0])
-
     vers_dir = next((path for path in listdir(workspace_path) if reg_vers.match(path)), None)
 
     if not vers_dir:
-        raise errors.NoVersionFoundError(f'''No version directory for version:
-         {version} was found in {workspace_path}''')
+        raise errors.NoVersionFoundError(
+            f"""No version directory for version: {version} was found in 
+            {workspace_path}"""
+        )
 
     vers_path = path.join(workspace_path, vers_dir)
     reg_vers_match = version.split('.')
 
     try:
-      reg_vers_file = re.compile(f'{reg_vers_match[0]}.{reg_vers_match[1]}')
+        reg_vers_file = re.compile(f'{reg_vers_match[0]}.{reg_vers_match[1]}')
     except IndexError:
-      raise errors.SemverNonCompliantError(f'''Semver non-compliant: The
-       requested version ({version}) needs at least a minor version''')
+        raise errors.SemverNonCompliantError(
+        f"""Semver non-compliant: The requested version ({version}) needs at
+        least a minor version"""
+      )
 
     versions = list(filter(lambda p: re.search(reg_vers_file, p), listdir(vers_path)))
 
     if not versions:
-        raise errors.NoVersionFoundError(f'''No version {version} has been
-         defined in path {vers_path}''')
+        raise errors.NoVersionFoundError(
+            f"""No version {version} has been defined in path {vers_path}"""
+        )
 
     return list(map(lambda p: path.join(vers_path, p), versions))
 
@@ -60,6 +65,7 @@ def filter_version(version, workspace):
     the desired 
     :param version: string the version to search for
     :param workspace: string full path to the workspace.
+    :return platforms: 
     """
     platform = Platform(workspace)
     yaml_files = get_versions_paths(workspace, version)
@@ -78,8 +84,9 @@ def filter_version(version, workspace):
             platforms.append(platform_copy)
 
     if len(platforms) == 0:
-        raise errors.NoVersionFoundError(f'''Version {version} was not found
-         in {workspace}''')
+        raise errors.NoVersionFoundError(
+            f"""Version {version} was not found in {workspace}"""
+        )
 
     return platforms
 
@@ -94,7 +101,8 @@ def create_workspace(components_workspace, name):
     try:
         makedirs(workspace, mode=0o755, exist_ok=False)
     except OSError as err:
-        raise errors.CannotCreateDirectory(f'''Cannot create temporary
-         directory: {err}''')
+        raise errors.CannotCreateDirectory(
+            f"""Cannot create temporary directory: {err}"""
+        )
 
     return workspace

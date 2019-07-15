@@ -17,8 +17,9 @@ def validate_workspace(ctx, param, value):
     if param.name == 'workspace' and not value:
         if not ('PINNER_WORKSPACE' in environ) or environ.get('PINNER_WORKSPACE') == '':
             raise click.UsageError("""pass --workspace or export 
-            PINNER_WORKSPACE pointing to the full path directory where the 
-            YAML platform version is located.""")
+                PINNER_WORKSPACE pointing to the full path directory where the 
+                YAML platform version is located."""
+            )
     return value
 
 _global_options = [
@@ -33,7 +34,8 @@ _global_options = [
         '-w',
         envvar='PINNER_WORKSPACE',
         help="""The fullpath to the workspace containing the configuration and
-        the platform versioning in yaml format.""",
+        the platform versioning in yaml format.
+        """,
         callback=validate_workspace,
         type=click.Path(exists=True),
     ),
@@ -94,23 +96,23 @@ def describe(version, workspace):
 @cli.command(
     help="""This command will start fetching all the repositories defined in a
     pinned version that match the specific version found. If multiple pinned
-    versions match, it will fail with an error.
-    """
+    versions match, it will fail with an error."""
 )
 @add_custom_options(_global_options + _ssh_options)
 def fetch(version, workspace, path, ssh_pub_key, ssh_priv_key):
     platforms = util.filter_version(version, workspace)
 
     if len(platforms) > 1:
-        raise errors.MultiplePlatformVersionsFound(f'Multiple version found for {version}. Narrow down the search to a minor version.')
+        raise errors.MultiplePlatformVersionsFound(
+            f"""Multiple version found for {version}. Narrow down the search 
+            to a minor version."""
+        )
     platforms[0].fetch_components(path, ssh_pub_key, ssh_priv_key)
 
 @cli.command(
     help="""This command will validate the defined platform pinned
-    version by
-    trying to fetch the refs described. If multiple versions match, it will
-    throw an exception.
-    """
+    version by trying to fetch the refs described. If multiple versions match, 
+    it will throw an exception."""
 )
 @add_custom_options(_global_options + _ssh_options)
 def validate(version, workspace, path, ssh_pub_key, ssh_priv_key):
