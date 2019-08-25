@@ -1,35 +1,112 @@
-Pinner
+Hurd
 ---
-Unifies microservices under a single platform version for CI/CD platform deployment.  
-This tool aims to fix the issue with managing microservices within the CI/CD pipeline,
-it will aid in the deployment of microservices under a single platform.  
+A declarative way to keep track of microservices under a common platform
+version.
 
-#### Workflow
-Create a new git repository, it is recommanded you give it the name of your platform.  
-We are going to work with an example created specifically for this tool.  
-Please see github.com/codeflavor/platform-test.  
-Inside the new repo, create a `config.yaml` file. This file will define a basic config
-for your microservices.  
-Each component, in this case each microservice, is specified as follows:   
+Usually, git submodules would be used to pin each microservice version in place
+to the platform version.  
+
+**NOTE**: Thisd documentation is a _"work in progress"_.
+
+#### Example
+Let's call our e-commerce platform `ecom` which is comprised of the following
+components:
+- cart service
+- payment gateway  
+- persistence layer 
+- billing service  
+
+**NOTE**: Each version is a repository git tag.
+
+`ecom v1.0`:
+- `cart-service v1.0.1`  
+- `payments-gateway v1.1.2`
+- `persistence-layer v1.2.3`
+- `billing-service v1.0.0`
+
+In a git repository named `ecom-platform` a `config.yaml` file should exist
+with the following contents:
+
 ```yaml
 ---
-name: platform-test
+# name is the platform name
+name: ecom 
+# components are the microservices under the platform
 components:
-  - alias: test1
-    url: git@github.com:codeflavor/test1.git
-  - alias: test2
-    url: git@github.com:codeflavor/test2.git
-  - alias: test3
-    url: git@github.com:codeflavor/test3.git
+  # the alias is used to reference a component in a version file.
+  - alias: cart
+  # the url is used for pinning the alias to a git url
+    url: git@github.com:ecom-org/cart-service.git
+  - alias: payments
+    url: git@github.com:ecom-org/payments-gateway.git
+  - alias: persistence
+    url: git@github.com:ecom-org/persistence-layer.git
+  - alias: billing
+    url: git@github.com:ecom-org/billing-service.git
 ```
-`name` - the name of the platform.  
-`components` - all of the components that the platform contains.  
-This does not only encompass microservices, but everything the platform is comprised of.
- e.g.: Microservices, Database schema, Swagger/OpenAPI schema, etc.  
+A directory containing the major version e.g.: `v1` needs to be created. Inside
+`v1` we need a file that has the following naming structure
+`platform_name-major-version.minor-version.yaml` aka `ecom-v0.1.yaml` with the
+following contents:
 
-This config must have a name for the component and point to the repository URL.  
+```yaml
+---
+# version describes the version of the platform
+version: v1.0.0
+components:
+    - alias: cart
+      refs: tags/v1.0.1
+    - alias: payments
+      refs: tags/v1.1.2
+    - alias: persistence
+      refs: tags/v1.2.3
+    - alias: billing
+      refs: tags/v1.0.0
+```
+
+#### Use
+
+Describing a specific platform version:
+
+Assuming the configuration from the [platform-test repo](https://github.com/codeflavor/platform-test).
+
+```bash
+$ HURD_WORKSPACE=~/projects/misc/platform-test/ python hurd.py describe -v v1.0.1
+╒════════════════════╤═════════╤═════════════════════════════════════╤══════════════════╤══════════════════════════════════════════╕
+│ Platform version   │ Alias   │ URL                                 │ Refs             │ Hash                                     │
+╞════════════════════╪═════════╪═════════════════════════════════════╪══════════════════╪══════════════════════════════════════════╡
+│ v1.0.1             │ test1   │ git@github.com:codeflavor/test1.git │ refs/tags/v1.0.1 │ 9701d9f3a555067f4a0fa5b61f9b7eafa78de9c2 │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.1             │ test2   │ git@github.com:codeflavor/test2.git │ refs/tags/v1.0.0 │ 854bf0434606da01b030e24ead572bc4196b4d3a │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.1             │ test3   │ git@github.com:codeflavor/test3.git │ refs/tags/v1.0.0 │ 5af8977d22913560b64c0c2b6001f914d097146b │
+╘════════════════════╧═════════╧═════════════════════════════════════╧══════════════════╧══════════════════════════════════════════╛
+```
+
+Describing all minor/patch versions:
+
+```bash
+$ HURD_WORKSPACE=~/projects/misc/platform-test/ python hurd.py describe -v v1.0
+╒════════════════════╤═════════╤═════════════════════════════════════╤══════════════════╤══════════════════════════════════════════╕
+│ Platform version   │ Alias   │ URL                                 │ Refs             │ Hash                                     │
+╞════════════════════╪═════════╪═════════════════════════════════════╪══════════════════╪══════════════════════════════════════════╡
+│ v1.0.0             │ test1   │ git@github.com:codeflavor/test1.git │ refs/tags/v1.0.1 │ 9701d9f3a555067f4a0fa5b61f9b7eafa78de9c2 │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.0             │ test2   │ git@github.com:codeflavor/test2.git │ refs/tags/v1.0.0 │ 854bf0434606da01b030e24ead572bc4196b4d3a │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.0             │ test3   │ git@github.com:codeflavor/test3.git │ refs/tags/v1.0.0 │ 5af8977d22913560b64c0c2b6001f914d097146b │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.1             │ test1   │ git@github.com:codeflavor/test1.git │ refs/tags/v1.0.1 │ 9701d9f3a555067f4a0fa5b61f9b7eafa78de9c2 │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.1             │ test2   │ git@github.com:codeflavor/test2.git │ refs/tags/v1.0.0 │ 854bf0434606da01b030e24ead572bc4196b4d3a │
+├────────────────────┼─────────┼─────────────────────────────────────┼──────────────────┼──────────────────────────────────────────┤
+│ v1.0.1             │ test3   │ git@github.com:codeflavor/test3.git │ refs/tags/v1.0.0 │ 5af8977d22913560b64c0c2b6001f914d097146b │
+╘════════════════════╧═════════╧═════════════════════════════════════╧══════════════════╧══════════════════════════════════════════╛
+
+```
 
 
+#### Workflow
 
 #### Installing and deps
 This project depends on python 3.7+ install
@@ -38,13 +115,12 @@ This project depends on python 3.7+ install
 Prerequisites:
 
 > python 3.7   
-libgit2,  libgit2-glib - needed for macbook and fedora.
+libgit2, libgit2-glib - needed for macbook and fedora.
 
 ```bash
 $ virtualenv -p python3 .venv
 ....
 # activate the virtualenv
-
 source .venv/bin/activate
 ```
 
