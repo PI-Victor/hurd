@@ -3,11 +3,11 @@ from setuptools import setup, find_packages
 VERSION='0.1.0'
 
 long_description="""
-Pinner is a CI/CD tool for pinning microservices under a unified platform.
+Hurd is a CI/CD tool for pinning microservices under a unified platform.
 """
 
 packages=[
-    'pinner',
+    'hurd',
 ]
 
 install_requires=[
@@ -19,9 +19,9 @@ install_requires=[
 
 def main():
     setup_info = dict(
-        name='pinner',
+        name='hurd',
         version=VERSION,
-        url="https://github.com/pi-victor/pinner",
+        url="https://github.com/pi-victor/hurd",
         author='Victor Palade <victor@cloudflavor.io>',
         description='A microservice platform tool for CI/CD pipelines',
         long_description=long_description,

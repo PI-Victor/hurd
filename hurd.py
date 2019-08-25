@@ -2,8 +2,8 @@ from os import environ
 
 import click
 
-from pinner import util
-from pinner import errors
+from hurd import util
+from hurd import errors
 
 
 def validate_version(ctx, param, value):
@@ -15,9 +15,9 @@ def validate_version(ctx, param, value):
 def validate_workspace(ctx, param, value):
     """Custom validation for --workspace option"""
     if param.name == 'workspace' and not value:
-        if not ('PINNER_WORKSPACE' in environ) or environ.get('PINNER_WORKSPACE') == '':
+        if not ('HURD_WORKSPACE' in environ) or environ.get('HURD_WORKSPACE') == '':
             raise click.UsageError("""pass --workspace or export 
-                PINNER_WORKSPACE pointing to the full path directory where the 
+                HURD_WORKSPACE pointing to the full path directory where the 
                 YAML platform version is located."""
             )
     return value
@@ -32,7 +32,7 @@ _global_options = [
     click.option(
         '--workspace',
         '-w',
-        envvar='PINNER_WORKSPACE',
+        envvar='HURD_WORKSPACE',
         help="""The fullpath to the workspace containing the configuration and
         the platform versioning in yaml format.
         """,
@@ -46,14 +46,14 @@ _ssh_options = [
         '--ssh-pub-key',
         help='Full path to the ssh public key used to clone the repositories.',
         type=click.Path(),
-        envvar='PINNER_PATH_PUBLIC_KEY',
+        envvar='HURD_PATH_PUBLIC_KEY',
     ),
     click.option(
         '--ssh-priv-key',
         help="""Full path to the ssh private key used to clone the 
         repositories.""",
         type=click.Path(),
-        envvar='PINNER_PATH_PRIVATE_KEY',
+        envvar='HURD_PATH_PRIVATE_KEY',
     ),
     click.option(
         '--path',
@@ -62,7 +62,7 @@ _ssh_options = [
          is given it will default to /tmp/${name-of-the-platform}""",
         type=click.Path(),
         default='/tmp',
-        envvar='PINNER_ARTIFACTS',
+        envvar='HURD_ARTIFACTS',
     ),
 ]
 
