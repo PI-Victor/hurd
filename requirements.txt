@@ -1,4 +1,4 @@
-astroid==2.1.0
+astroid==2.2.5
 autopep8==1.4.3
 cffi==1.11.5
 Click==7.0
