@@ -9,7 +9,7 @@ pycodestyle==2.5.0
 pycparser==2.19
 pygit2==1.0.1
 pylint==2.4.4
-PyYAML==5.2
+PyYAML==5.3
 six==1.13.0
 tabulate==0.8.6
 wrapt==1.11.2
