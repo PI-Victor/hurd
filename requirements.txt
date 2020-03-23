@@ -11,5 +11,5 @@ pygit2==1.1.1
 pylint==2.4.4
 PyYAML==5.3.1
 six==1.14.0
-tabulate==0.8.6
+tabulate==0.8.7
 wrapt==1.12.1
