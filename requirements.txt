@@ -2,7 +2,7 @@ astroid==2.4.2
 autopep8==1.5.4
 cffi==1.14.1
 Click==7.1.2
-isort==5.4.1
+isort==5.4.2
 lazy-object-proxy==1.5.1
 mccabe==0.6.1
 pycodestyle==2.6.0
